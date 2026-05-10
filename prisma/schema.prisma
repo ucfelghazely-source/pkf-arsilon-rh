@@ -1,0 +1,209 @@
+// PKF Arsilon Casablanca — HR Platform
+// Prisma Schema — SQLite (dev) / Turso (production Netlify)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS (stockés en TEXT dans SQLite) ──────────────────
+
+// Role: COLLABORATEUR | MANAGER | RH | ADMIN
+// RequestStatus: DRAFT | PENDING_MANAGER | PENDING_RH | APPROVED | REFUSED | CANCELLED
+// LeaveType: CP | RTT | SANS_SOLDE | MALADIE | MATERNITE | PATERNITE | EVENEMENT_FAMILIAL | RECUPERATION_FERIE
+// RemoteWorkType: REGULAR | OCCASIONAL | RAMADAN
+// DocumentType: ATTESTATION_TRAVAIL | BULLETIN_PAIE | CONTRAT | AVENANT | CERTIFICAT_MALADIE | AUTRE
+// AdminRequestType: CHANGEMENT_ADRESSE | CHANGEMENT_EMAIL | CHANGEMENT_TELEPHONE | CHANGEMENT_RIB | ATTESTATION_TRAVAIL | COMPOSITION_FAMILIALE | TITRE_SEJOUR | REMBOURSEMENT_TRANSPORT | TICKETS_RESTAURANT
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String?
+  firstName     String
+  lastName      String
+  matricule     String?  @unique
+  codeDossier   String?
+  role          String   @default("COLLABORATEUR")
+  region        String?
+  department    String?
+  entryDate     DateTime
+  isActive      Boolean  @default(true)
+  avatarColor   String?  @default("2563A8")
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  managerId     String?
+  manager       User?    @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates  User[]   @relation("ManagerSubordinates")
+
+  leaveBalances       LeaveBalance[]
+  leaveRequests       LeaveRequest[]
+  remoteWorkRequests  RemoteWorkRequest[]
+  approvalsGiven      Approval[]           @relation("ApproverApprovals")
+  notifications       Notification[]
+  adminRequests       AdminRequest[]
+  auditLogs           AuditLog[]
+
+  @@index([email])
+  @@index([managerId])
+}
+
+model LeaveBalance {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType           String
+  fiscalYear          String
+  balanceStart        Float    @default(0)
+  acquired            Float    @default(0)
+  consumed            Float    @default(0)
+  pending             Float    @default(0)
+  publicHolidayWorked Float    @default(0)
+  updatedAt           DateTime @updatedAt
+
+  @@unique([userId, leaveType, fiscalYear])
+  @@index([userId])
+  @@index([fiscalYear])
+}
+
+model LeaveRequest {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  leaveType     String
+  startDate     DateTime
+  endDate       DateTime
+  workingDays   Float
+  halfDay       Boolean  @default(false)
+  halfDayPeriod String?
+  reason        String?
+  status        String   @default("PENDING_MANAGER")
+  refusedReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model RemoteWorkRequest {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  type          String   @default("REGULAR")
+  date          DateTime
+  weekNumber    Int
+  yearNumber    Int
+  reason        String?
+  status        String   @default("PENDING_MANAGER")
+  refusedReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([weekNumber, yearNumber])
+  @@index([status])
+}
+
+model Approval {
+  id                  String             @id @default(cuid())
+  approverId          String
+  approver            User               @relation("ApproverApprovals", fields: [approverId], references: [id])
+  leaveRequestId      String?
+  leaveRequest        LeaveRequest?      @relation(fields: [leaveRequestId], references: [id])
+  remoteWorkRequestId String?
+  remoteWorkRequest   RemoteWorkRequest? @relation(fields: [remoteWorkRequestId], references: [id])
+  adminRequestId      String?
+  adminRequest        AdminRequest?      @relation(fields: [adminRequestId], references: [id])
+  status              String
+  comment             String?
+  approvedAt          DateTime           @default(now())
+  step                Int                @default(1)
+
+  @@index([approverId])
+  @@index([leaveRequestId])
+  @@index([remoteWorkRequestId])
+}
+
+model AdminRequest {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  type           String
+  status         String   @default("PENDING_RH")
+  payload        String?
+  generatedDocId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Notification {
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  title               String
+  body                String
+  isRead              Boolean            @default(false)
+  type                String
+  leaveRequestId      String?
+  leaveRequest        LeaveRequest?      @relation(fields: [leaveRequestId], references: [id])
+  remoteWorkRequestId String?
+  remoteWorkRequest   RemoteWorkRequest? @relation(fields: [remoteWorkRequestId], references: [id])
+  adminRequestId      String?
+  adminRequest        AdminRequest?      @relation(fields: [adminRequestId], references: [id])
+  createdAt           DateTime           @default(now())
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PublicHoliday {
+  id       String   @id @default(cuid())
+  date     DateTime @unique
+  name     String
+  country  String   @default("MA")
+  isWorked Boolean  @default(false)
+
+  @@index([date])
+}
+
+model RemoteWorkQuota {
+  id          String    @id @default(cuid())
+  name        String
+  maxPerWeek  Int       @default(2)
+  maxPerMonth Int       @default(12)
+  validFrom   DateTime
+  validTo     DateTime?
+  isActive    Boolean   @default(true)
+}
