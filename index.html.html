@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PKF Arsilon Casablanca — Plateforme RH</title>
+<style>
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A3A5C;--blue:#2563A8;--cyan:#06B6D4;--cyan-lt:#CFFAFE;
+  --surface:#F8FAFC;--card:#FFFFFF;--border:rgba(26,58,92,0.11);
+  --text:#0F1C2E;--text2:#4A6280;--text3:#8BA3BE;
+  --green:#059669;--green-bg:#ECFDF5;--green-br:#6EE7B7;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-br:#FCD34D;
+  --red:#DC2626;--red-bg:#FEF2F2;--red-br:#FCA5A5;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --blue-bg:#EFF6FF;--blue-br:#93C5FD;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--surface);color:var(--text);font-size:14px;line-height:1.5}
+input,select,textarea,button{font-family:inherit;font-size:13px}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.logo{font-size:17px;font-weight:600;color:white;letter-spacing:-.3px}
+.logo span{color:var(--cyan)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.user-chip .username{font-size:12px;color:white}
+.user-chip .role-badge{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:500}
+.notif-btn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;color:white;font-size:16px}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#F87171;border:1.5px solid var(--navy)}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:calc(100vh - 52px)}
+.sidebar{width:210px;background:var(--card);border-right:0.5px solid var(--border);overflow-y:auto;flex-shrink:0;padding:12px 0}
+.main{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.sid-section{margin-bottom:4px}
+.sid-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;padding:8px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border-left:2.5px solid transparent;transition:all .1s}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:var(--blue-bg);color:var(--blue);border-left-color:var(--blue);font-weight:500}
+.nav-icon{font-size:16px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--red-bg);color:var(--red);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.nav-badge.green{background:var(--green-bg);color:var(--green)}
+
+/* ── PAGES ── */
+.page{display:none;flex-direction:column;gap:16px}
+.page.active{display:flex}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.card-action{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* ── KPI CARDS ── */
+.kpi{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:600;line-height:1}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.kpi-bar{height:4px;border-radius:2px;background:var(--border);margin-top:8px;overflow:hidden}
+.kpi-fill{height:100%;border-radius:2px}
+
+/* ── GREETING ── */
+.greeting{background:var(--navy);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;color:white}
+.greeting-left{display:flex;align-items:center;gap:16px}
+.date-box{background:rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;text-align:center;min-width:62px}
+.date-num{font-size:24px;font-weight:700;line-height:1}
+.date-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
+.greeting-info h2{font-size:18px;font-weight:600}
+.greeting-info p{font-size:13px;color:rgba(255,255,255,.65);margin-top:2px}
+.greeting-right{background:rgba(255,255,255,.12);border-radius:8px;padding:12px 16px;text-align:center;min-width:140px}
+.greeting-right .big{font-size:22px;font-weight:600;margin-top:2px}
+.greeting-right .lbl{font-size:11px;color:rgba(255,255,255,.65)}
+
+/* ── STATUS BADGES ── */
+.badge{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.badge-pending{background:var(--amber-bg);color:var(--amber);border:0.5px solid var(--amber-br)}
+.badge-approved{background:var(--green-bg);color:var(--green);border:0.5px solid var(--green-br)}
+.badge-refused{background:var(--red-bg);color:var(--red);border:0.5px solid var(--red-br)}
+.badge-tt{background:#DBEAFE;color:#1E40AF}
+.badge-cp{background:#D1FAE5;color:#065F46}
+.badge-adm{background:var(--purple-bg);color:var(--purple)}
+.badge-css{background:#FEF3C7;color:#92400E}
+.badge-mal{background:#FEE2E2;color:#991B1B}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;color:var(--text3);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;border-bottom:0.5px solid var(--border);background:var(--surface)}
+td{padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;font-weight:600;color:var(--text2)}
+.fg input,.fg select,.fg textarea{border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);background:var(--card);outline:none;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,168,.12)}
+.fg textarea{resize:vertical;min-height:70px}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:0.5px solid;transition:all .1s}
+.btn-primary{background:var(--blue);color:white;border-color:var(--blue)}
+.btn-primary:hover{background:#1d4e8e}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-br)}
+.btn-danger:hover{background:#fde8e8}
+.btn-outline{background:transparent;color:var(--blue);border-color:var(--blue-br)}
+.btn-outline:hover{background:var(--blue-bg)}
+.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-green{background:var(--green-bg);color:var(--green);border-color:var(--green-br)}
+.btn-green:hover{background:#d1fae5}
+
+/* ── ALERTS ── */
+.alert{border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:flex-start;font-size:12px}
+.alert-warn{background:var(--amber-bg);border:0.5px solid var(--amber-br);color:#78350F}
+.alert-info{background:var(--blue-bg);border:0.5px solid var(--blue-br);color:#1E40AF}
+.alert-success{background:var(--green-bg);border:0.5px solid var(--green-br);color:#065F46}
+.alert-error{background:var(--red-bg);border:0.5px solid var(--red-br);color:#991B1B}
+.alert-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ── WORKFLOW ── */
+.wf{display:flex;align-items:center;margin:12px 0}
+.wf-step{display:flex;flex-direction:column;align-items:center;gap:3px}
+.wf-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.wf-done{background:var(--green);color:white}
+.wf-active{background:var(--blue);color:white}
+.wf-wait{background:var(--surface);color:var(--text3);border:1.5px solid var(--border)}
+.wf-line{flex:1;height:2px;background:var(--border)}
+.wf-line.done{background:var(--green)}
+.wf-lbl{font-size:9px;color:var(--text3);text-align:center;max-width:50px}
+
+/* ── QUOTA BAR ── */
+.qbar{display:flex;align-items:center;gap:8px;padding:6px 0}
+.qbar-name{font-size:12px;color:var(--text2);min-width:120px}
+.qbar-track{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden}
+.qbar-fill{height:100%;border-radius:3px;transition:width .3s}
+.qbar-count{font-size:11px;color:var(--text2);min-width:36px;text-align:right}
+
+/* ── CALENDAR ── */
+.cal-wrap{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-head{font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:3px 0}
+.cal-cell{text-align:center;padding:5px 2px;border-radius:6px;cursor:pointer;font-size:11px;min-height:28px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;border:1px solid transparent}
+.cal-cell:hover{background:var(--surface)}
+.cal-cell.today{background:var(--blue);color:white;font-weight:600}
+.cal-cell.weekend{color:var(--text3)}
+.cal-cell.holiday{background:#FEF3C7;color:#92400E}
+.cal-cell.tt{background:#DBEAFE;color:#1E40AF}
+.cal-cell.cp{background:#D1FAE5;color:#065F46}
+.cal-cell.selected{border-color:var(--blue);background:var(--blue-bg)}
+.cal-cell.disabled{opacity:.35;cursor:not-allowed}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,28,46,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:14px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);padding:2px 6px;border-radius:6px}
+.modal-close:hover{background:var(--surface);color:var(--text)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border)}
+
+/* ── TOASTS ── */
+.toast-area{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.12);animation:slideIn .3s ease;min-width:260px}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--blue)}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);padding:20px}
+.login-card{background:var(--card);border-radius:16px;padding:40px;width:100%;max-width:400px}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .big{font-size:26px;font-weight:700;color:var(--navy)}
+.login-logo .big span{color:var(--blue)}
+.login-logo .sub{font-size:13px;color:var(--text2);margin-top:4px}
+.login-sso{background:var(--blue-bg);border:1.5px solid var(--blue-br);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;margin-bottom:16px}
+.login-sso:hover{background:#dbeafe;border-color:var(--blue)}
+.login-sso-icon{width:36px;height:36px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;flex-shrink:0}
+.login-sso-text p{font-size:13px;font-weight:600;color:var(--blue)}
+.login-sso-text span{font-size:11px;color:var(--text2)}
+.login-sep{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px}
+.login-sep::before,.login-sep::after{content:'';flex:1;height:0.5px;background:var(--border)}
+.login-users{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.login-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:0.5px solid var(--border);cursor:pointer;transition:all .1s}
+.login-user:hover{background:var(--blue-bg);border-color:var(--blue-br)}
+.login-user .av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.login-user .info p{font-size:12px;font-weight:500}
+.login-user .info span{font-size:10px;color:var(--text3)}
+.login-user .role{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between}
+.ph-title{font-size:16px;font-weight:600}
+.ph-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ── MISC ── */
+.sep{height:0.5px;background:var(--border);margin:10px 0}
+.region-pill{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-weight:500}
+.req-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.req-row:last-child{border-bottom:none}
+.req-info{flex:1}
+.req-info p{font-size:13px;color:var(--text)}
+.req-info small{font-size:11px;color:var(--text3)}
+.solde-alert{color:var(--red);font-weight:600}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─────────────────────────────────────── -->
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="big">PKF <span>Arsilon</span></div>
+      <div class="sub">Plateforme RH · Bureau de Casablanca</div>
+    </div>
+
+    <div class="login-sso" onclick="loginSSO()">
+      <div class="login-sso-icon">🔐</div>
+      <div class="login-sso-text">
+        <p>Connexion SSO PKF</p>
+        <span>Utilisez vos identifiants réseau arsilon.com</span>
+      </div>
+    </div>
+
+    <div class="login-sep">ou choisir un compte de démonstration</div>
+
+    <div class="login-users" id="userList"></div>
+  </div>
+</div>
+
+<!-- ─── APP ───────────────────────────────────────── -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="logo">PKF <span>Arsilon</span> <span style="font-size:11px;opacity:.5;font-weight:400;margin-left:6px">Casablanca · RH</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn" onclick="showNotifs()" title="Notifications">
+        🔔<div class="notif-dot" id="notifDot"></div>
+      </button>
+      <div class="user-chip" onclick="logout()">
+        <div class="avatar" id="topAvatar"></div>
+        <span class="username" id="topName"></span>
+        <span class="role-badge" id="topRole"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="sidebar" id="sidebar"></nav>
+    <main class="main" id="mainContent"></main>
+  </div>
+</div>
+
+<!-- ─── MODAL ─────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-hd">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- ─── TOASTS ─────────────────────────────────────── -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  DATA — extrait du fichier Excel PKF Arsilon Casa
+// ══════════════════════════════════════════════════
+const USERS = [
+  {id:'usr_mgr', email:'y.el-ghazely@arsilon.com', firstName:'Youssef', lastName:'EL GHAZELY', role:'MANAGER', region:'ALL', color:'3B82C4', managerId:null, matricule:'65916'},
+  {id:'usr_rh',  email:'v.duclos@arsilon.com',     firstName:'Véronique', lastName:'DUCLOS',    role:'RH',      region:'RH',  color:'059669', managerId:null, matricule:'65100'},
+  {id:'usr_001', email:'g.chard@arsilon.com',       firstName:'Ghita',   lastName:'CHARD',       role:'COLLABORATEUR', region:'IDF',  color:'7C3AED', managerId:'usr_mgr', matricule:'65001', entryDate:'2023-09-11'},
+  {id:'usr_002', email:'c.amensar@arsilon.com',     firstName:'Chaima',  lastName:'AMENSAR',     role:'COLLABORATEUR', region:'SO',   color:'D97706', managerId:'usr_mgr', matricule:'65002', entryDate:'2023-09-18'},
+  {id:'usr_003', email:'r.bartali@arsilon.com',     firstName:'Reda',    lastName:'BARTALI',     role:'COLLABORATEUR', region:'SUD',  color:'DC2626', managerId:'usr_mgr', matricule:'65003', entryDate:'2024-09-09'},
+  {id:'usr_004', email:'a.elmouttaki@arsilon.com',  firstName:'Aicha',   lastName:'EL MOUTTAKI', role:'COLLABORATEUR', region:'SUD',  color:'0891B2', managerId:'usr_mgr', matricule:'65004', entryDate:'2024-09-09'},
+  {id:'usr_005', email:'l.beloubir@arsilon.com',    firstName:'Lina',    lastName:'BELOUBIR',    role:'COLLABORATEUR', region:'SUD',  color:'4F46E5', managerId:'usr_mgr', matricule:'65005', entryDate:'2024-09-09'},
+  {id:'usr_006', email:'k.hlaibi@arsilon.com',      firstName:'Kawtar',  lastName:'HLAIBI',      role:'COLLABORATEUR', region:'SO',   color:'059669', managerId:'usr_mgr', matricule:'65006', entryDate:'2024-09-09'},
+  {id:'usr_007', email:'s.eddiani@arsilon.com',     firstName:'Samia',   lastName:'EDDIANI',     role:'COLLABORATEUR', region:'SO',   color:'BE185D', managerId:'usr_mgr', matricule:'65007', entryDate:'2024-10-21'},
+  {id:'usr_008', email:'s.abderrazzak@arsilon.com', firstName:'Salma',   lastName:'ABDERRAZZAK', role:'COLLABORATEUR', region:'RABE', color:'92400E', managerId:'usr_mgr', matricule:'65008', entryDate:'2024-09-09'},
+  {id:'usr_009', email:'k.redouane@arsilon.com',    firstName:'Kawtar',  lastName:'REDOUANE',    role:'COLLABORATEUR', region:'NORD', color:'1E40AF', managerId:'usr_mgr', matricule:'65009', entryDate:'2024-09-09'},
+  {id:'usr_010', email:'m.demouche@arsilon.com',    firstName:'Marwa',   lastName:'DEMOUCHE',    role:'COLLABORATEUR', region:'NORD', color:'7C3AED', managerId:'usr_mgr', matricule:'65010', entryDate:'2024-09-09'},
+  {id:'usr_011', email:'h.touta@arsilon.com',       firstName:'Hiba',    lastName:'TOUTA',       role:'COLLABORATEUR', region:'IDF',  color:'0F766E', managerId:'usr_mgr', matricule:'65011', entryDate:'2024-09-09'},
+  {id:'usr_012', email:'z.zemroun@arsilon.com',     firstName:'Zineb',   lastName:'ZEMROUN',     role:'COLLABORATEUR', region:'IDF',  color:'6D28D9', managerId:'usr_mgr', matricule:'65012', entryDate:'2024-09-09'},
+  {id:'usr_013', email:'m.sadki@arsilon.com',       firstName:'Maha',    lastName:'SADKI',       role:'COLLABORATEUR', region:'IDF',  color:'BE185D', managerId:'usr_mgr', matricule:'65013', entryDate:'2024-09-09'},
+  {id:'usr_014', email:'i.yamini@arsilon.com',      firstName:'Intissar',lastName:'YAMINI',      role:'COLLABORATEUR', region:'GO',   color:'059669', managerId:'usr_mgr', matricule:'65014', entryDate:'2024-09-09'},
+  {id:'usr_015', email:'a.lhamime@arsilon.com',     firstName:'Amina',   lastName:'LHAMIME',     role:'COLLABORATEUR', region:'CDG',  color:'D97706', managerId:'usr_mgr', matricule:'65015', entryDate:'2024-10-15'},
+  {id:'usr_016', email:'z.chihab@arsilon.com',      firstName:'Zakaria', lastName:'CHIHAB',      role:'COLLABORATEUR', region:'IT',   color:'2563A8', managerId:'usr_mgr', matricule:'65016', entryDate:'2025-01-20'},
+  {id:'usr_017', email:'y.touhami@arsilon.com',     firstName:'Youssef', lastName:'TOUHAMI',     role:'COLLABORATEUR', region:'ITRA', color:'DC2626', managerId:'usr_mgr', matricule:'65017', entryDate:'2024-09-09'},
+];
+
+// Soldes CP FY26 (depuis Excel)
+const CP_BALANCES = {
+  'usr_001':{acquired:9.88,  consumed:13,   balanceStart:17.86, jfWork:0},
+  'usr_002':{acquired:14.0,  consumed:25.5, balanceStart:14.45, jfWork:2},
+  'usr_003':{acquired:17.5,  consumed:23,   balanceStart:12.05, jfWork:0},
+  'usr_004':{acquired:17.5,  consumed:19,   balanceStart:12.05, jfWork:0},
+  'usr_005':{acquired:17.5,  consumed:24,   balanceStart:13.05, jfWork:0},
+  'usr_006':{acquired:17.5,  consumed:22,   balanceStart:12.05, jfWork:2},
+  'usr_007':{acquired:17.5,  consumed:25,   balanceStart:13.35, jfWork:3},
+  'usr_008':{acquired:17.5,  consumed:24,   balanceStart:12.05, jfWork:2},
+  'usr_009':{acquired:12.5,  consumed:23,   balanceStart:13.05, jfWork:0},
+  'usr_010':{acquired:17.5,  consumed:21.5, balanceStart:12.05, jfWork:2},
+  'usr_011':{acquired:17.5,  consumed:23,   balanceStart:13.05, jfWork:2},
+  'usr_012':{acquired:17.5,  consumed:22,   balanceStart:12.05, jfWork:2},
+  'usr_013':{acquired:17.5,  consumed:21,   balanceStart:11.55, jfWork:2},
+  'usr_014':{acquired:14.875,consumed:18,   balanceStart:11.05, jfWork:0},
+  'usr_015':{acquired:17.5,  consumed:23,   balanceStart:10.625,jfWork:1},
+  'usr_016':{acquired:17.5,  consumed:23.5, balanceStart:9.95,  jfWork:2},
+  'usr_017':{acquired:17.5,  consumed:29,   balanceStart:9.05,  jfWork:0},
+};
+
+function cpSolde(uid){
+  const b=CP_BALANCES[uid];
+  if(!b)return null;
+  return +(b.balanceStart+b.acquired-b.consumed).toFixed(2);
+}
+
+// Quota TT mensuel
+const TT_MONTHLY = {
+  'usr_001':12,'usr_002':12,'usr_003':8,'usr_004':10,'usr_005':11,
+  'usr_006':9,'usr_007':9,'usr_008':8,'usr_009':8,'usr_010':7,
+  'usr_011':9,'usr_012':8,'usr_013':7,'usr_014':8,'usr_015':7,
+  'usr_016':6,'usr_017':10,
+};
+
+// Demandes (state en mémoire)
+let REQUESTS = [
+  {id:'rq01',userId:'usr_002',type:'TT', date:'2026-05-06',week:19,status:'APPROVED',  approvedBy:'usr_mgr',createdAt:'2026-05-04'},
+  {id:'rq02',userId:'usr_002',type:'TT', date:'2026-05-08',week:19,status:'APPROVED',  approvedBy:'usr_mgr',createdAt:'2026-05-04'},
+  {id:'rq03',userId:'usr_001',type:'TT', date:'2026-05-07',week:19,status:'APPROVED',  approvedBy:'usr_mgr',createdAt:'2026-05-05'},
+  {id:'rq04',userId:'usr_006',type:'TT', date:'2026-05-12',week:20,status:'PENDING',   approvedBy:null,     createdAt:'2026-05-08'},
+  {id:'rq05',userId:'usr_001',type:'TT', date:'2026-05-14',week:20,status:'PENDING',   approvedBy:null,     createdAt:'2026-05-09'},
+  {id:'rq06',userId:'usr_009',type:'TT', date:'2026-05-13',week:20,status:'PENDING',   approvedBy:null,     createdAt:'2026-05-09'},
+  {id:'rq07',userId:'usr_003',type:'CP', startDate:'2026-07-06',endDate:'2026-07-18',days:9,status:'PENDING',   approvedBy:null,     createdAt:'2026-05-05'},
+  {id:'rq08',userId:'usr_004',type:'CP', startDate:'2026-08-03',endDate:'2026-08-28',days:19,status:'APPROVED', approvedBy:'usr_mgr',createdAt:'2026-04-20'},
+  {id:'rq09',userId:'usr_010',type:'CP', startDate:'2026-07-01',endDate:'2026-07-31',days:22,status:'APPROVED', approvedBy:'usr_mgr',createdAt:'2026-04-22'},
+  {id:'rq10',userId:'usr_017',type:'CP', startDate:'2026-04-01',endDate:'2026-04-15',days:11,status:'APPROVED', approvedBy:'usr_mgr',createdAt:'2026-03-20',note:'Solde négatif validé exceptionnellement'},
+  {id:'rq11',userId:'usr_005',type:'CP', startDate:'2026-06-01',endDate:'2026-06-13',days:10,status:'PENDING',  approvedBy:null,     createdAt:'2026-05-08'},
+  {id:'rq12',userId:'usr_007',type:'ADM',subtype:'ATTESTATION',status:'APPROVED',createdAt:'2026-05-02',docReady:true},
+  {id:'rq13',userId:'usr_015',type:'ADM',subtype:'REMBOURSEMENT_TRANSPORT',status:'PENDING',createdAt:'2026-04-28'},
+];
+
+let NOTIFS = [
+  {id:'n1',userId:'usr_mgr',text:'HLAIBI Kawtar — Demande TT 12 Mai en attente',type:'TT',read:false},
+  {id:'n2',userId:'usr_mgr',text:'BARTALI Reda — Demande CP Juillet en attente',type:'CP',read:false},
+  {id:'n3',userId:'usr_mgr',text:'BELOUBIR Lina — Demande CP Juin en attente',type:'CP',read:false},
+  {id:'n4',userId:'usr_001',text:'Votre demande TT du 14 Mai est en attente',type:'TT',read:false},
+  {id:'n5',userId:'usr_002',text:'Vos demandes TT du 6 et 8 Mai ont été validées',type:'TT',read:true},
+];
+
+// ══════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════
+let currentUser = null;
+let currentPage = 'dashboard';
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+function initials(u){return (u.firstName[0]+u.lastName[0]).toUpperCase()}
+function fullName(u){return u.firstName+' '+u.lastName}
+function userById(id){return USERS.find(u=>u.id===id)}
+function fmt(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
+function fmtShort(d){if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}
+
+function avatarHtml(u,size=32,radius=8){
+  const s=`width:${size}px;height:${size}px;border-radius:${radius}px;background:#${u.color}20;color:#${u.color};display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*.38)}px;font-weight:600;flex-shrink:0`;
+  return `<div style="${s}">${initials(u)}</div>`;
+}
+
+function badgeStatus(s){
+  const m={PENDING:'badge-pending',APPROVED:'badge-approved',REFUSED:'badge-refused'};
+  const l={PENDING:'En attente',APPROVED:'Validé',REFUSED:'Refusé'};
+  return `<span class="badge ${m[s]||''}">${l[s]||s}</span>`;
+}
+
+function badgeType(t){
+  const m={TT:'badge-tt',CP:'badge-cp',ADM:'badge-adm',CSS:'badge-css',MAL:'badge-mal'};
+  const l={TT:'TT',CP:'CP',ADM:'ADM'};
+  return `<span class="badge ${m[t]||''}">${l[t]||t}</span>`;
+}
+
+function soldeColor(s){return s<0?'var(--red)':s<3?'var(--amber)':'var(--green)'}
+
+function toast(msg,type='info'){
+  const icons={success:'✅',error:'❌',info:'ℹ️',warn:'⚠️'};
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastArea').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+function openModal(title,bodyHtml,footerHtml=''){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=bodyHtml;
+  document.getElementById('modalFooter').innerHTML=footerHtml;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.add('hidden')}
+
+// ══════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════
+function buildLoginUsers(){
+  const ul=document.getElementById('userList');
+  const roleColors={COLLABORATEUR:'background:#EFF6FF;color:#1E40AF',MANAGER:'background:#F0FDF4;color:#166534',RH:'background:#FDF4FF;color:#7E22CE',ADMIN:'background:#FFF7ED;color:#9A3412'};
+  ul.innerHTML=USERS.map(u=>`
+    <div class="login-user" onclick="doLogin('${u.id}')">
+      ${avatarHtml(u,32,8)}
+      <div class="info">
+        <p>${fullName(u)}</p>
+        <span>${u.email}</span>
+      </div>
+      <span class="role" style="${roleColors[u.role]||''}">${u.role}</span>
+    </div>`).join('');
+}
+
+function loginSSO(){
+  toast('SSO PKF : redirection vers le portail d\'authentification…','info');
+  setTimeout(()=>doLogin('usr_mgr'),1500);
+}
+
+function doLogin(uid){
+  currentUser=USERS.find(u=>u.id===uid);
+  if(!currentUser)return;
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  // topbar
+  const av=document.getElementById('topAvatar');
+  av.textContent=initials(currentUser);
+  av.style.cssText=`width:28px;height:28px;border-radius:50%;background:#${currentUser.color}30;color:#${currentUser.color};font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center`;
+  document.getElementById('topName').textContent=fullName(currentUser);
+  const roleStyle={COLLABORATEUR:'background:#DBEAFE;color:#1E40AF',MANAGER:'background:#D1FAE5;color:#065F46',RH:'background:#EDE9FE;color:#5B21B6',ADMIN:'background:#FEE2E2;color:#991B1B'};
+  document.getElementById('topRole').style.cssText=`font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;${roleStyle[currentUser.role]||''}`;
+  document.getElementById('topRole').textContent=currentUser.role;
+  updateNotifDot();
+  buildSidebar();
+  navigate('dashboard');
+}
+
+function logout(){
+  currentUser=null;
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════
+//  SIDEBAR
+// ══════════════════════════════════════════════════
+function buildSidebar(){
+  const r=currentUser.role;
+  const pendingForManager=REQUESTS.filter(x=>x.status==='PENDING').length;
+  let html=`
+  <div class="sid-section">
+    <div class="sid-lbl">Principal</div>
+    <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">🏠</span>Tableau de bord</div>
+    <div class="nav-item" data-page="tt" onclick="navigate('tt')"><span class="nav-icon">💻</span>Télétravail</div>
+    <div class="nav-item" data-page="cp" onclick="navigate('cp')"><span class="nav-icon">🏖️</span>Congés Payés</div>
+    <div class="nav-item" data-page="forms" onclick="navigate('forms')"><span class="nav-icon">📋</span>Formulaires</div>
+  </div>
+  <div class="sid-section">
+    <div class="sid-lbl">Mon espace</div>
+    <div class="nav-item" data-page="calendrier" onclick="navigate('calendrier')"><span class="nav-icon">📅</span>Mon calendrier</div>
+    <div class="nav-item" data-page="historique" onclick="navigate('historique')"><span class="nav-icon">🕐</span>Historique</div>
+  </div>`;
+  if(r==='MANAGER'||r==='RH'||r==='ADMIN'){
+    html+=`
+  <div class="sid-section">
+    <div class="sid-lbl">Management</div>
+    <div class="nav-item" data-page="validations" onclick="navigate('validations')"><span class="nav-icon">✅</span>Validations<span class="nav-badge">${pendingForManager}</span></div>
+    <div class="nav-item" data-page="equipe" onclick="navigate('equipe')"><span class="nav-icon">👥</span>Mon équipe</div>
+  </div>`;
+  }
+  if(r==='RH'||r==='ADMIN'){
+    html+=`
+  <div class="sid-section">
+    <div class="sid-lbl">Administration RH</div>
+    <div class="nav-item" data-page="admin" onclick="navigate('admin')"><span class="nav-icon">⚙️</span>Admin soldes</div>
+    <div class="nav-item" data-page="import" onclick="navigate('import')"><span class="nav-icon">📥</span>Import Excel</div>
+  </div>`;
+  }
+  document.getElementById('sidebar').innerHTML=html;
+}
+
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.page===page);
+  });
+  const pages={
+    dashboard:renderDashboard,
+    tt:renderTT,
+    cp:renderCP,
+    forms:renderForms,
+    calendrier:renderCalendrier,
+    historique:renderHistorique,
+    validations:renderValidations,
+    equipe:renderEquipe,
+    admin:renderAdmin,
+    import:renderImport,
+  };
+  const mc=document.getElementById('mainContent');
+  mc.innerHTML='';
+  if(pages[page])pages[page]();
+}
+
+function updateNotifDot(){
+  const unread=NOTIFS.filter(n=>n.userId===currentUser?.id&&!n.read).length;
+  document.getElementById('notifDot').style.display=unread>0?'block':'none';
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDashboard(){
+  const mc=document.getElementById('mainContent');
+  const u=currentUser;
+  const solde=cpSolde(u.id);
+  const tt=TT_MONTHLY[u.id]||0;
+  const myRequests=REQUESTS.filter(r=>r.userId===u.id);
+  const myPending=myRequests.filter(r=>r.status==='PENDING');
+
+  const today=new Date();
+  const dayNames=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const monthNames=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  // Calendar mini
+  const d1=new Date(2026,4,1);
+  const holidays=[1,13];
+  const ttDays=[6,8,12,14,19,21,26];
+  const cpDays=[];
+  let calHtml='';
+  ['L','M','M','J','V','S','D'].forEach(d=>{calHtml+=`<div class="cal-head">${d}</div>`});
+  const startDow=(new Date(2026,4,1).getDay()+6)%7;
+  for(let i=0;i<startDow;i++)calHtml+=`<div></div>`;
+  for(let d=1;d<=31;d++){
+    const dow=(new Date(2026,4,d).getDay()+6)%7;
+    const isWe=dow>=5;
+    const isHoliday=holidays.includes(d);
+    const isTT=ttDays.includes(d);
+    const isToday=d===10;
+    let cls='cal-cell';
+    if(isToday)cls+=' today';
+    else if(isHoliday)cls+=' holiday';
+    else if(isTT&&!isWe)cls+=' tt';
+    else if(isWe)cls+=' weekend';
+    calHtml+=`<div class="${cls}">${d}</div>`;
+  }
+
+  const recentHtml=myRequests.slice(-4).reverse().map(r=>`
+    <div class="req-row">
+      ${badgeType(r.type)}
+      <div class="req-info">
+        <p>${r.type==='TT'?'Télétravail · '+fmtShort(r.date):r.type==='CP'?'Congés · '+fmtShort(r.startDate)+' → '+fmtShort(r.endDate):'Formulaire · '+(r.subtype||'')}</p>
+        <small>Créé le ${fmt(r.createdAt)}</small>
+      </div>
+      ${badgeStatus(r.status)}
+    </div>`).join('')||'<p style="color:var(--text3);font-size:12px">Aucune demande récente</p>';
+
+  mc.innerHTML=`
+  <div class="page active" id="page-dashboard">
+
+    <div class="greeting">
+      <div class="greeting-left">
+        <div class="date-box">
+          <div class="date-num">10</div>
+          <div class="date-lbl">Dim · Mai</div>
+        </div>
+        <div class="greeting-info">
+          <h2>Bonjour, ${u.firstName} 👋</h2>
+          <p>${u.role==='MANAGER'?'Manager · Bureau de Casablanca':u.role==='RH'?'Responsable RH':u.region+' · Collaborateur'}</p>
+        </div>
+      </div>
+      <div class="greeting-right">
+        <div class="lbl">Actions en attente</div>
+        <div class="big">${myPending.length > 0 ? myPending.length+' demande'+(myPending.length>1?'s':'') : '✓ Aucune'}</div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="kpi">
+        <div class="kpi-lbl">Solde Congés Payés</div>
+        <div class="kpi-val" style="color:${soldeColor(solde)}">${solde!==null?solde+'j':'—'}</div>
+        <div class="kpi-sub">disponible FY26</div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:${solde!==null?Math.min(100,Math.max(0,(solde/25)*100)):0}%;background:${soldeColor(solde)}"></div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Télétravail utilisé</div>
+        <div class="kpi-val" style="color:var(--blue)">${tt}j</div>
+        <div class="kpi-sub">sur 12j max ce mois</div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:${Math.min(100,(tt/12)*100)}%;background:var(--blue)"></div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Demandes en cours</div>
+        <div class="kpi-val" style="color:var(--amber)">${myPending.length}</div>
+        <div class="kpi-sub">en attente de validation</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">📋 Mes demandes récentes</div>
+          <div class="card-action" onclick="navigate('historique')">Tout voir →</div>
+        </div>
+        ${recentHtml}
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">📅 Mai 2026</div>
+          <div style="display:flex;gap:8px;font-size:10px">
+            <span style="background:#DBEAFE;color:#1E40AF;padding:2px 6px;border-radius:4px">■ TT</span>
+            <span style="background:#FEF3C7;color:#92400E;padding:2px 6px;border-radius:4px">■ Férié</span>
+          </div>
+        </div>
+        <div class="cal-wrap">${calHtml}</div>
+      </div>
+    </div>
+
+    ${u.role==='MANAGER'||u.role==='RH'?`
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">⚠️ Alertes RH</div>
+      </div>
+      <div class="alert alert-warn" style="margin-bottom:8px">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Solde CP négatif</strong> — TOUHAMI Youssef : −2,45j. Accord exceptionnel requis.</div>
+      </div>
+      <div class="alert alert-info" style="margin-bottom:8px">
+        <span class="alert-icon">ℹ️</span>
+        <div>3 demandes de validation en attente de votre approbation.</div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✅</span>
+        <div>Règle télétravail respectée cette semaine pour tous les collaborateurs.</div>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: TÉLÉTRAVAIL
+// ══════════════════════════════════════════════════
+function renderTT(){
+  const mc=document.getElementById('mainContent');
+  const u=currentUser;
+  const myTT=REQUESTS.filter(r=>r.userId===u.id&&r.type==='TT');
+  const tt=TT_MONTHLY[u.id]||0;
+
+  // Quota hebdo check
+  const week20TT=myTT.filter(r=>r.week===20&&['APPROVED','PENDING'].includes(r.status)).length;
+  const quotaAlert=week20TT>=2;
+
+  const tableHtml=myTT.map(r=>`
+    <tr>
+      <td>${fmt(r.date)}</td>
+      <td>S${r.week}</td>
+      <td>${badgeStatus(r.status)}</td>
+      <td>${r.approvedBy?fullName(userById(r.approvedBy)):'—'}</td>
+      <td>
+        ${r.status==='PENDING'?`<button class="btn btn-danger btn-sm" onclick="cancelRequest('${r.id}')">Annuler</button>`:'—'}
+      </td>
+    </tr>`).join('');
+
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div>
+        <div class="ph-title">💻 Télétravail</div>
+        <div class="ph-sub">Maximum 2 jours par semaine civile · Quota mensuel : 12 jours</div>
+      </div>
+      <button class="btn btn-primary" onclick="openTTForm()">+ Nouvelle demande</button>
+    </div>
+
+    ${quotaAlert?`<div class="alert alert-warn"><span class="alert-icon">⚠️</span>Semaine S20 : quota 2j/semaine atteint. Impossible d'ajouter une nouvelle demande cette semaine.</div>`:''}
+
+    <div class="grid3">
+      <div class="kpi">
+        <div class="kpi-lbl">TT ce mois</div>
+        <div class="kpi-val" style="color:var(--blue)">${tt}j</div>
+        <div class="kpi-sub">sur 12 autorisés</div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:${(tt/12)*100}%;background:var(--blue)"></div></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Cette semaine (S20)</div>
+        <div class="kpi-val" style="color:${week20TT>=2?'var(--red)':'var(--green)'}">${week20TT}/2j</div>
+        <div class="kpi-sub">${week20TT>=2?'Quota hebdo atteint':'Quota disponible'}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Restant ce mois</div>
+        <div class="kpi-val" style="color:var(--amber)">${12-tt}j</div>
+        <div class="kpi-sub">disponibles</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Mes demandes TT</div></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Semaine</th><th>Statut</th><th>Validé par</th><th>Action</th></tr></thead>
+          <tbody>${tableHtml||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">Aucune demande</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">👥 Quota équipe — Semaine S20</div></div>
+      ${USERS.filter(u=>u.role==='COLLABORATEUR').slice(0,8).map(usr=>{
+        const uw=REQUESTS.filter(r=>r.userId===usr.id&&r.type==='TT'&&r.week===20&&['APPROVED','PENDING'].includes(r.status)).length;
+        return `<div class="qbar">
+          <div style="display:flex;align-items:center;gap:8px;min-width:160px">${avatarHtml(usr,22,5)}<span style="font-size:12px;color:var(--text2)">${usr.firstName} ${usr.lastName.split(' ')[0]}</span></div>
+          <div class="qbar-track"><div class="qbar-fill" style="width:${(uw/2)*100}%;background:${uw>=2?'var(--red)':uw===1?'var(--amber)':'var(--green)'}"></div></div>
+          <div class="qbar-count" style="color:${uw>=2?'var(--red)':'var(--text2)'}">${uw}/2</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function openTTForm(){
+  const week20Used=REQUESTS.filter(r=>r.userId===currentUser.id&&r.type==='TT'&&r.week===20&&['APPROVED','PENDING'].includes(r.status)).length;
+  const body=`
+    <div class="form-grid">
+      <div class="fg"><label>Date souhaitée</label><input type="date" id="ttDate" min="2026-05-11" max="2026-06-30" value="2026-05-19"></div>
+      <div class="fg"><label>Type</label><select id="ttType"><option>Régulier</option><option>Occasionnel</option></select></div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label>Motif (optionnel)</label><input type="text" id="ttMotif" placeholder="Ex: Concentration sur dossier client"></div>
+    <div style="margin-top:14px;background:var(--surface);border-radius:8px;padding:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Workflow de validation</div>
+      <div class="wf">
+        <div class="wf-step"><div class="wf-circle wf-done">✓</div><div class="wf-lbl">Soumis</div></div>
+        <div class="wf-line done"></div>
+        <div class="wf-step"><div class="wf-circle wf-active">2</div><div class="wf-lbl">Manager</div></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-circle wf-wait">3</div><div class="wf-lbl">RH</div></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-circle wf-wait">✓</div><div class="wf-lbl">Final</div></div>
+      </div>
+    </div>
+    ${week20Used>=2?'<div class="alert alert-warn" style="margin-top:12px"><span>⚠️</span>Semaine S20 déjà à 2j — choisissez une autre semaine.</div>':''}`;
+
+  openModal('Nouvelle demande de télétravail', body,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-primary" onclick="submitTT()">✉️ Soumettre</button>`);
+}
+
+function submitTT(){
+  const date=document.getElementById('ttDate').value;
+  if(!date){toast('Sélectionnez une date','error');return;}
+  const dt=new Date(date);
+  const week=getISOWeek(dt);
+  const weekUsed=REQUESTS.filter(r=>r.userId===currentUser.id&&r.type==='TT'&&r.week===week&&['APPROVED','PENDING'].includes(r.status)).length;
+  if(weekUsed>=2){toast('❌ Quota 2j/semaine déjà atteint pour cette semaine','error');return;}
+  REQUESTS.push({id:'rq'+Date.now(),userId:currentUser.id,type:'TT',date,week,status:'PENDING',approvedBy:null,createdAt:new Date().toISOString().split('T')[0]});
+  NOTIFS.push({id:'n'+Date.now(),userId:'usr_mgr',text:`${fullName(currentUser)} — Demande TT ${fmtShort(date)} en attente`,type:'TT',read:false});
+  closeModal();
+  toast('✅ Demande TT soumise — en attente de validation manager','success');
+  renderTT();
+}
+
+function getISOWeek(d){
+  const date=new Date(d);
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate()+3-(date.getDay()+6)%7);
+  const week1=new Date(date.getFullYear(),0,4);
+  return 1+Math.round(((date-week1)/86400000-3+(week1.getDay()+6)%7)/7);
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: CONGÉS PAYÉS
+// ══════════════════════════════════════════════════
+function renderCP(){
+  const mc=document.getElementById('mainContent');
+  const u=currentUser;
+  const b=CP_BALANCES[u.id];
+  const solde=cpSolde(u.id);
+  const myCP=REQUESTS.filter(r=>r.userId===u.id&&r.type==='CP');
+
+  const balHtml=b?`
+    <div class="grid4" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-lbl">Solde N-1</div><div class="kpi-val" style="color:var(--blue)">${b.balanceStart}j</div><div class="kpi-sub">Reporté FY25</div></div>
+      <div class="kpi"><div class="kpi-lbl">CP acquis FY26</div><div class="kpi-val" style="color:var(--green)">${b.acquired}j</div><div class="kpi-sub">à fin Avr 2026</div></div>
+      <div class="kpi"><div class="kpi-lbl">CP consommés</div><div class="kpi-val" style="color:var(--amber)">${b.consumed}j</div><div class="kpi-sub">cette année</div></div>
+      <div class="kpi"><div class="kpi-lbl">Solde actuel</div><div class="kpi-val" style="color:${soldeColor(solde)}">${solde}j</div><div class="kpi-sub">${solde<0?'⚠️ Débiteur':'disponible'}</div></div>
+    </div>`:'<p>Aucun solde enregistré</p>';
+
+  const tableHtml=myCP.map(r=>`
+    <tr>
+      <td>${fmt(r.startDate)} → ${fmt(r.endDate)}</td>
+      <td>${r.days}j</td>
+      <td>${badgeStatus(r.status)}</td>
+      <td>${r.approvedBy?fullName(userById(r.approvedBy)):'—'}</td>
+      <td>${r.note?`<span style="font-size:10px;color:var(--amber)">${r.note}</span>`:'—'}</td>
+    </tr>`).join('');
+
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">🏖️ Congés Payés</div><div class="ph-sub">FY26 · Juillet 2025 – Juin 2026</div></div>
+      <button class="btn btn-primary" onclick="openCPForm()">+ Demander des congés</button>
+    </div>
+
+    ${solde!==null&&solde<0?`<div class="alert alert-warn"><span class="alert-icon">⚠️</span><strong>Solde débiteur de ${Math.abs(solde)}j</strong> — Des jours ont été pris par anticipation. Un accord exceptionnel de votre manager est requis.</div>`:''}
+
+    ${balHtml}
+
+    <div class="card" style="border-left:3px solid var(--blue)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:600;letter-spacing:.5px">Solde cumulé à date</div>
+          <div style="font-size:32px;font-weight:700;color:${soldeColor(solde)};margin-top:4px">${solde!==null?solde+'j':'—'}</div>
+          ${b?`<div style="font-size:12px;color:var(--text2);margin-top:2px">= ${b.balanceStart} (N-1) + ${b.acquired} (acquis) − ${b.consumed} (pris)</div>`:''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text3)">Prochaine acquisition</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text)">+1,46j</div>
+          <div style="font-size:11px;color:var(--text3)">au 1er Juin 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Mes demandes CP</div></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Période</th><th>Jours</th><th>Statut</th><th>Validé par</th><th>Note</th></tr></thead>
+          <tbody>${tableHtml||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">Aucune demande</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openCPForm(){
+  const b=CP_BALANCES[currentUser.id];
+  const solde=b?+(b.balanceStart+b.acquired-b.consumed).toFixed(2):0;
+  const body=`
+    <div class="form-grid">
+      <div class="fg"><label>Date de début</label><input type="date" id="cpStart" value="2026-07-06"></div>
+      <div class="fg"><label>Date de fin</label><input type="date" id="cpEnd" value="2026-07-18"></div>
+    </div>
+    <div class="form-grid" style="margin-top:12px">
+      <div class="fg"><label>Type de congé</label>
+        <select id="cpType">
+          <option>Congé Payé (CP)</option><option>RTT</option><option>Sans Solde (CSS)</option>
+          <option>Événement familial</option><option>Récupération jour férié</option>
+        </select>
+      </div>
+      <div class="fg"><label>Demi-journée</label>
+        <select id="cpHalf"><option value="">Journée complète</option><option value="AM">Matin (AM)</option><option value="PM">Après-midi (PM)</option></select>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label>Motif / Commentaire</label><textarea id="cpMotif" placeholder="Précisez si besoin..."></textarea></div>
+    <div style="margin-top:12px;background:var(--surface);border-radius:8px;padding:10px;font-size:12px">
+      <strong>Solde disponible : <span style="color:${soldeColor(solde)}">${solde}j</span></strong>
+      ${solde<5?'<span style="color:var(--amber);margin-left:8px">⚠️ Solde faible</span>':''}
+    </div>`;
+  openModal('Nouvelle demande de congés', body,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-primary" onclick="submitCP()">✉️ Soumettre</button>`);
+}
+
+function submitCP(){
+  const start=document.getElementById('cpStart').value;
+  const end=document.getElementById('cpEnd').value;
+  if(!start||!end){toast('Sélectionnez les dates','error');return;}
+  const days=Math.max(1,Math.round((new Date(end)-new Date(start))/86400000*5/7));
+  const solde=cpSolde(currentUser.id)||0;
+  if(days>solde+5){toast('⚠️ Jours demandés > solde disponible. Accord exceptionnel nécessaire.','warn');}
+  REQUESTS.push({id:'rq'+Date.now(),userId:currentUser.id,type:'CP',startDate:start,endDate:end,days,status:'PENDING',approvedBy:null,createdAt:new Date().toISOString().split('T')[0]});
+  NOTIFS.push({id:'n'+Date.now(),userId:'usr_mgr',text:`${fullName(currentUser)} — Demande CP ${fmtShort(start)}→${fmtShort(end)} en attente`,type:'CP',read:false});
+  closeModal();
+  toast('✅ Demande CP soumise — en attente de validation','success');
+  renderCP();
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: FORMULAIRES
+// ══════════════════════════════════════════════════
+function renderForms(){
+  const mc=document.getElementById('mainContent');
+  const myAdm=REQUESTS.filter(r=>r.userId===currentUser.id&&r.type==='ADM');
+  const forms=[
+    {id:'ATTESTATION',icon:'📄',title:'Attestation de travail',sub:'Génération PDF automatique',color:'var(--purple)'},
+    {id:'CHANGEMENT_ADRESSE',icon:'🏠',title:'Changement d\'adresse',sub:'Mettre à jour',color:'var(--blue)'},
+    {id:'CHANGEMENT_EMAIL',icon:'✉️',title:'Changement email',sub:'Personnel',color:'var(--blue)'},
+    {id:'CHANGEMENT_RIB',icon:'💳',title:'Changement RIB',sub:'Coordonnées bancaires',color:'var(--green)'},
+    {id:'REMBOURSEMENT_TRANSPORT',icon:'🚌',title:'Remboursement transport',sub:'Frais de trajet',color:'var(--amber)'},
+    {id:'COMPOSITION_FAMILIALE',icon:'👨‍👩‍👧',title:'Composition familiale',sub:'Naissance, enfant à charge',color:'var(--green)'},
+    {id:'TITRE_SEJOUR',icon:'🪪',title:'Titre de séjour',sub:'Autorisation de travail',color:'var(--red)'},
+    {id:'TICKETS_RESTAURANT',icon:'🍽️',title:'Tickets restaurant',sub:'Activation / Suspension',color:'var(--amber)'},
+  ];
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph"><div><div class="ph-title">📋 Formulaires RH</div><div class="ph-sub">Demandes administratives</div></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">
+      ${forms.map(f=>`
+        <div class="card" style="cursor:pointer;text-align:center;padding:20px 12px" onclick="openFormModal('${f.id}','${f.title}')">
+          <div style="font-size:28px;margin-bottom:8px">${f.icon}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text)">${f.title}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">${f.sub}</div>
+          <div style="margin-top:12px;font-size:22px;color:${f.color};font-weight:300">+</div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Mes demandes administratives</div></div>
+      ${myAdm.length?`<div class="tbl-wrap"><table>
+        <thead><tr><th>Type</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody>${myAdm.map(r=>`
+          <tr>
+            <td>${r.subtype||'ADM'}</td>
+            <td>${fmt(r.createdAt)}</td>
+            <td>${badgeStatus(r.status)}</td>
+            <td>${r.docReady?`<button class="btn btn-green btn-sm" onclick="toast('📥 Attestation téléchargée','success')">📥 Télécharger</button>`:'—'}</td>
+          </tr>`).join('')}
+        </tbody></table></div>`
+        :'<p style="color:var(--text3);font-size:12px">Aucune demande</p>'}
+    </div>
+  </div>`;
+}
+
+function openFormModal(type,title){
+  const body=`
+    <div class="fg"><label>Commentaire / Précisions</label><textarea id="formNote" placeholder="Détaillez votre demande..."></textarea></div>
+    ${type==='ATTESTATION'?`
+    <div class="fg" style="margin-top:12px"><label>Destinataire</label>
+      <select id="formDest"><option>Organisme bancaire</option><option>Administration publique</option><option>Ambassade</option><option>Autre</option></select>
+    </div>
+    <div class="alert alert-info" style="margin-top:12px"><span>ℹ️</span>L'attestation sera générée en PDF et disponible sous 24h.</div>`:''}`;
+  openModal(title, body,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-primary" onclick="submitForm('${type}','${title}')">✉️ Soumettre</button>`);
+}
+
+function submitForm(type,title){
+  REQUESTS.push({id:'rq'+Date.now(),userId:currentUser.id,type:'ADM',subtype:type,status:'PENDING',createdAt:new Date().toISOString().split('T')[0]});
+  closeModal();
+  toast(`✅ Demande "${title}" soumise au service RH`,'success');
+  renderForms();
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: CALENDRIER
+// ══════════════════════════════════════════════════
+function renderCalendrier(){
+  const mc=document.getElementById('mainContent');
+  const u=currentUser;
+  const myTT=REQUESTS.filter(r=>r.userId===u.id&&r.type==='TT'&&r.status==='APPROVED').map(r=>new Date(r.date).getDate());
+  const myCP=REQUESTS.filter(r=>r.userId===u.id&&r.type==='CP'&&r.status==='APPROVED');
+  const holidays=[1,13];
+
+  let calHtml='';
+  ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(d=>{calHtml+=`<div class="cal-head">${d}</div>`});
+  const startDow=(new Date(2026,4,1).getDay()+6)%7;
+  for(let i=0;i<startDow;i++)calHtml+=`<div></div>`;
+  for(let d=1;d<=31;d++){
+    const dow=(new Date(2026,4,d).getDay()+6)%7;
+    const isWe=dow>=5;
+    const isH=holidays.includes(d);
+    const isTT=myTT.includes(d);
+    const isToday=d===10;
+    let cls='cal-cell';
+    if(isToday)cls+=' today';
+    else if(isH&&!isWe)cls+=' holiday';
+    else if(isTT&&!isWe)cls+=' tt';
+    else if(isWe)cls+=' weekend';
+    calHtml+=`<div class="${cls}">${d}</div>`;
+  }
+
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">📅 Mon calendrier</div><div class="ph-sub">Mai 2026 · Absences, TT et jours fériés</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm">◀ Avr</button>
+        <button class="btn btn-outline btn-sm">Mai 2026</button>
+        <button class="btn btn-ghost btn-sm">Jun ▶</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        ${avatarHtml(u,38,9)}
+        <div>
+          <div style="font-size:14px;font-weight:600">${fullName(u)}</div>
+          <div style="font-size:11px;color:var(--text3)">${u.region} · ${u.role}</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;font-size:10px">
+          <span style="background:#DBEAFE;color:#1E40AF;padding:3px 8px;border-radius:4px">■ TT</span>
+          <span style="background:#D1FAE5;color:#065F46;padding:3px 8px;border-radius:4px">■ CP</span>
+          <span style="background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:4px">■ Férié</span>
+        </div>
+      </div>
+      <div class="cal-wrap">${calHtml}</div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Événements à venir</div></div>
+      <div class="req-row">
+        <span style="font-size:18px">💻</span>
+        <div class="req-info"><p>Télétravail validé</p><small>Lundi 6 Mai · Vendredi 8 Mai 2026</small></div>
+        <span class="badge badge-approved">Validé</span>
+      </div>
+      <div class="req-row">
+        <span style="font-size:18px">🎉</span>
+        <div class="req-info"><p>Fête de l'Ascension</p><small>Jeudi 14 Mai 2026 · Jour férié chômé</small></div>
+        <span class="badge" style="background:#FEF3C7;color:#92400E">Férié</span>
+      </div>
+      <div class="req-row">
+        <span style="font-size:18px">💻</span>
+        <div class="req-info"><p>Télétravail en attente</p><small>Mercredi 14 Mai 2026</small></div>
+        <span class="badge badge-pending">En attente</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: HISTORIQUE
+// ══════════════════════════════════════════════════
+function renderHistorique(){
+  const mc=document.getElementById('mainContent');
+  const myReqs=REQUESTS.filter(r=>r.userId===currentUser.id).reverse();
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">🕐 Historique</div><div class="ph-sub">Toutes vos demandes</div></div>
+      <button class="btn btn-outline btn-sm" onclick="toast('Export CSV généré','success')">📥 Export CSV</button>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Description</th><th>Date(s)</th><th>Créé le</th><th>Statut</th><th>Valideur</th></tr></thead>
+          <tbody>${myReqs.map(r=>`
+            <tr>
+              <td>${badgeType(r.type)}</td>
+              <td>${r.type==='TT'?'Télétravail':r.type==='CP'?'Congés Payés':'Formulaire · '+(r.subtype||'')}</td>
+              <td>${r.type==='TT'?fmt(r.date):r.type==='CP'?fmtShort(r.startDate)+' → '+fmtShort(r.endDate):'—'}</td>
+              <td>${fmt(r.createdAt)}</td>
+              <td>${badgeStatus(r.status)}</td>
+              <td>${r.approvedBy?fullName(userById(r.approvedBy)):'—'}</td>
+            </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">Aucune demande</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: VALIDATIONS (Manager/RH)
+// ══════════════════════════════════════════════════
+function renderValidations(){
+  const mc=document.getElementById('mainContent');
+  const pending=REQUESTS.filter(r=>r.status==='PENDING');
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">✅ Validations en attente</div><div class="ph-sub">${pending.length} demande${pending.length>1?'s':''} à traiter</div></div>
+    </div>
+    ${pending.length===0?'<div class="alert alert-success"><span>✅</span>Aucune demande en attente. Tout est à jour.</div>':''}
+    <div id="validList">
+      ${pending.map(r=>{
+        const u=userById(r.userId);
+        const solde=cpSolde(r.userId);
+        const week20=REQUESTS.filter(x=>x.userId===r.userId&&x.type==='TT'&&x.week===20&&['APPROVED'].includes(x.status)).length;
+        const alertMsg=r.type==='CP'&&solde!==null&&r.days>solde?`⚠️ Demande de ${r.days}j mais solde = ${solde}j`:
+                       r.type==='TT'&&week20>=2?`⚠️ S20 : déjà ${week20}j TT approuvé`:'';
+        return `
+        <div class="card" id="card_${r.id}">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            ${avatarHtml(u,40,10)}
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                <strong style="font-size:14px">${fullName(u)}</strong>
+                <span class="region-pill">${u.region}</span>
+                ${badgeType(r.type)}
+              </div>
+              <div style="font-size:13px;color:var(--text)">
+                ${r.type==='TT'?'Télétravail · <strong>'+fmt(r.date)+'</strong>':
+                  r.type==='CP'?'Congés Payés · <strong>'+fmtShort(r.startDate)+' → '+fmtShort(r.endDate)+'</strong> ('+r.days+'j)':
+                  'Formulaire · '+(r.subtype||'')}
+              </div>
+              ${r.type==='CP'&&solde!==null?`<div style="font-size:11px;color:var(--text3);margin-top:2px">Solde CP disponible : <strong style="color:${soldeColor(solde)}">${solde}j</strong></div>`:''}
+              <div style="font-size:11px;color:var(--text3)">Soumis le ${fmt(r.createdAt)}</div>
+              ${alertMsg?`<div class="alert alert-warn" style="margin-top:8px;padding:6px 10px"><span>⚠️</span>${alertMsg}</div>`:''}
+              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-green btn-sm" onclick="approveReq('${r.id}')">✅ Approuver</button>
+                <button class="btn btn-danger btn-sm" onclick="refuseReq('${r.id}')">❌ Refuser</button>
+                <button class="btn btn-ghost btn-sm" onclick="commentReq('${r.id}')">💬 Commenter</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function approveReq(id){
+  const r=REQUESTS.find(x=>x.id===id);
+  if(!r)return;
+  // Vérif quota TT
+  if(r.type==='TT'){
+    const wUsed=REQUESTS.filter(x=>x.userId===r.userId&&x.type==='TT'&&x.week===r.week&&x.status==='APPROVED'&&x.id!==id).length;
+    if(wUsed>=2){
+      toast('❌ Impossible : quota 2j/semaine déjà atteint pour ce collaborateur','error');return;
+    }
+  }
+  r.status='APPROVED';r.approvedBy=currentUser.id;
+  NOTIFS.push({id:'n'+Date.now(),userId:r.userId,text:`Votre demande ${r.type} a été approuvée par ${fullName(currentUser)}`,type:r.type,read:false});
+  toast(`✅ Demande de ${fullName(userById(r.userId))} approuvée`,'success');
+  buildSidebar();renderValidations();
+}
+
+function refuseReq(id){
+  openModal('Motif de refus',
+    `<div class="fg"><label>Raison du refus</label><textarea id="refuseReason" placeholder="Ex: Conflit planning équipe, quota dépassé..."></textarea></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-danger" onclick="doRefuse('${id}')">❌ Confirmer le refus</button>`);
+}
+
+function doRefuse(id){
+  const reason=document.getElementById('refuseReason').value||'Refusé par le manager';
+  const r=REQUESTS.find(x=>x.id===id);
+  if(!r)return;
+  r.status='REFUSED';r.refusedReason=reason;
+  NOTIFS.push({id:'n'+Date.now(),userId:r.userId,text:`Votre demande ${r.type} a été refusée : ${reason}`,type:r.type,read:false});
+  closeModal();
+  toast(`Demande de ${fullName(userById(r.userId))} refusée`,'info');
+  buildSidebar();renderValidations();
+}
+
+function commentReq(id){
+  openModal('Ajouter un commentaire',
+    `<div class="fg"><label>Commentaire</label><textarea id="commentText" placeholder="Visible par le collaborateur..."></textarea></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-primary" onclick="closeModal();toast('💬 Commentaire envoyé','success')">Envoyer</button>`);
+}
+
+function cancelRequest(id){
+  const r=REQUESTS.find(x=>x.id===id);
+  if(r&&r.status==='PENDING'){r.status='REFUSED';r.refusedReason='Annulé par le collaborateur';toast('Demande annulée','info');renderTT();}
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: ÉQUIPE (Manager)
+// ══════════════════════════════════════════════════
+function renderEquipe(){
+  const mc=document.getElementById('mainContent');
+  const collaborateurs=USERS.filter(u=>u.role==='COLLABORATEUR');
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">👥 Mon équipe</div><div class="ph-sub">Bureau de Casablanca · ${collaborateurs.length} collaborateurs</div></div>
+      <button class="btn btn-outline btn-sm" onclick="toast('Export Excel généré','success')">📥 Export</button>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Collaborateur</th><th>Région</th><th>Entrée</th><th>Solde CP</th><th>TT ce mois</th><th>Statut</th></tr></thead>
+          <tbody>${collaborateurs.map(u=>{
+            const solde=cpSolde(u.id);
+            const tt=TT_MONTHLY[u.id]||0;
+            return `<tr>
+              <td><div style="display:flex;align-items:center;gap:8px">${avatarHtml(u,28,7)}<span>${fullName(u)}</span></div></td>
+              <td><span class="region-pill">${u.region}</span></td>
+              <td style="font-size:11px;color:var(--text3)">${u.entryDate||'—'}</td>
+              <td><strong style="color:${soldeColor(solde)}">${solde!==null?solde+'j':'—'}</strong></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span>${tt}j</span>
+                  <div style="width:50px;height:5px;border-radius:2px;background:var(--border);overflow:hidden">
+                    <div style="width:${(tt/12)*100}%;height:100%;background:${tt>=12?'var(--red)':tt>=9?'var(--amber)':'var(--blue)'};border-radius:2px"></div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-approved">Actif</span></td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: ADMIN SOLDES (RH)
+// ══════════════════════════════════════════════════
+function renderAdmin(){
+  const mc=document.getElementById('mainContent');
+  const collaborateurs=USERS.filter(u=>u.role==='COLLABORATEUR');
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph">
+      <div><div class="ph-title">⚙️ Administration des soldes</div><div class="ph-sub">FY26 · Mise à jour manuelle</div></div>
+    </div>
+    <div class="alert alert-warn">
+      <span>⚠️</span>TOUHAMI Youssef : solde CP négatif (−2,45j). Vérifier avec le manager.
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Collaborateur</th><th>Matricule</th><th>Région</th><th>Solde N-1</th><th>Acquis</th><th>Pris</th><th>Solde actuel</th><th>JF travaillés</th><th>Action</th></tr></thead>
+          <tbody>${collaborateurs.map(u=>{
+            const b=CP_BALANCES[u.id];
+            const solde=cpSolde(u.id);
+            if(!b)return'';
+            return `<tr>
+              <td><div style="display:flex;align-items:center;gap:7px">${avatarHtml(u,24,6)}<span style="font-size:12px">${fullName(u)}</span></div></td>
+              <td style="font-size:11px;color:var(--text3)">${u.matricule||'—'}</td>
+              <td><span class="region-pill">${u.region}</span></td>
+              <td>${b.balanceStart}j</td>
+              <td>${b.acquired}j</td>
+              <td>${b.consumed}j</td>
+              <td><strong style="color:${soldeColor(solde)}">${solde}j</strong></td>
+              <td>${b.jfWork>0?`+${b.jfWork}j`:'—'}</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="editBalance('${u.id}')">✏️ Modifier</button></td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function editBalance(uid){
+  const u=userById(uid);
+  const b=CP_BALANCES[uid];
+  if(!b||!u)return;
+  openModal(`Modifier solde — ${fullName(u)}`,
+    `<div class="form-grid">
+      <div class="fg"><label>Solde N-1</label><input type="number" id="eb_n1" value="${b.balanceStart}" step="0.5"></div>
+      <div class="fg"><label>CP acquis FY26</label><input type="number" id="eb_acq" value="${b.acquired}" step="0.5"></div>
+      <div class="fg"><label>CP consommés</label><input type="number" id="eb_cons" value="${b.consumed}" step="0.5"></div>
+      <div class="fg"><label>JF Maroc travaillés</label><input type="number" id="eb_jf" value="${b.jfWork}" step="1"></div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label>Motif de modification</label><input type="text" id="eb_note" placeholder="Ex: Correction import FY26"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+     <button class="btn btn-primary" onclick="saveBalance('${uid}')">💾 Enregistrer</button>`);
+}
+
+function saveBalance(uid){
+  CP_BALANCES[uid]={
+    balanceStart:+document.getElementById('eb_n1').value,
+    acquired:+document.getElementById('eb_acq').value,
+    consumed:+document.getElementById('eb_cons').value,
+    jfWork:+document.getElementById('eb_jf').value,
+  };
+  closeModal();toast('✅ Solde mis à jour','success');renderAdmin();
+}
+
+// ══════════════════════════════════════════════════
+//  PAGE: IMPORT EXCEL
+// ══════════════════════════════════════════════════
+function renderImport(){
+  const mc=document.getElementById('mainContent');
+  mc.innerHTML=`
+  <div class="page active">
+    <div class="ph"><div><div class="ph-title">📥 Import Excel</div><div class="ph-sub">Synchroniser les soldes depuis votre fichier Excel</div></div></div>
+    <div class="card" style="border:2px dashed var(--blue-br);text-align:center;padding:40px 20px">
+      <div style="font-size:40px;margin-bottom:12px">📊</div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Glissez votre fichier Excel ici</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Suivi_CP___Télétravail_Casablanca.xlsx · Format accepté</div>
+      <button class="btn btn-primary" onclick="simulateImport()">📂 Choisir un fichier</button>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Historique des imports</div></div>
+      <div class="req-row">
+        <span style="font-size:18px">✅</span>
+        <div class="req-info"><p>Suivi_CP___Télétravail_Casablanca.xlsx</p><small>Importé le 10/05/2026 · 17 collaborateurs · 24 onglets TT traités</small></div>
+        <span class="badge badge-approved">Succès</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">⚙️ Règles métier actives</div></div>
+      <table><thead><tr><th>Règle</th><th>Valeur</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>Quota TT hebdomadaire</td><td><strong>2j / semaine civile</strong></td><td>Standard</td></tr>
+        <tr><td>Quota TT mensuel</td><td><strong>12j / mois</strong></td><td>Standard</td></tr>
+        <tr><td>Quota TT Ramadan</td><td><strong>3j / semaine</strong></td><td>23 Fév – 22 Mar 2026</td></tr>
+        <tr><td>Acquisition CP mensuelle</td><td><strong>2,5j / mois</strong></td><td>Maroc</td></tr>
+        <tr><td>Maintien salaire maladie</td><td><strong>3j (ancienneté &gt;1an)</strong></td><td>Tous</td></tr>
+        <tr><td>JF Maroc travaillé</td><td><strong>+1j récupération</strong></td><td>Tous</td></tr>
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+function simulateImport(){
+  toast('⏳ Import en cours…','info');
+  setTimeout(()=>toast('✅ 17 collaborateurs importés · 0 erreur','success'),1500);
+}
+
+// ══════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════════
+function showNotifs(){
+  const myNotifs=NOTIFS.filter(n=>n.userId===currentUser.id);
+  myNotifs.forEach(n=>n.read=true);
+  updateNotifDot();
+  const body=myNotifs.length?myNotifs.map(n=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <span style="font-size:18px">${n.type==='TT'?'💻':n.type==='CP'?'🏖️':'📋'}</span>
+      <div>
+        <p style="font-size:13px;color:var(--text)">${n.text}</p>
+      </div>
+    </div>`).join('')
+    :'<p style="color:var(--text3);text-align:center;padding:20px;font-size:13px">Aucune notification</p>';
+  openModal('🔔 Notifications', body,'<button class="btn btn-primary" onclick="closeModal()">Fermer</button>');
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+buildLoginUsers();
+</script>
+</body>
+</html>

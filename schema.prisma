@@ -1,0 +1,285 @@
+// PKF Arsilon Casablanca — HR Platform
+// Prisma Schema v1.0 — Production Ready
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────
+
+enum Role {
+  COLLABORATEUR
+  MANAGER
+  RH
+  ADMIN
+}
+
+enum RequestStatus {
+  DRAFT
+  PENDING_MANAGER
+  PENDING_RH
+  APPROVED
+  REFUSED
+  CANCELLED
+}
+
+enum LeaveType {
+  CP           // Congé Payé
+  RTT
+  SANS_SOLDE   // CSS
+  MALADIE      // MAL
+  MATERNITE
+  PATERNITE
+  EVENEMENT_FAMILIAL
+  RECUPERATION_FERIE // +1 Maroc
+}
+
+enum RemoteWorkType {
+  REGULAR
+  OCCASIONAL
+  RAMADAN
+}
+
+enum DocumentType {
+  ATTESTATION_TRAVAIL
+  BULLETIN_PAIE
+  CONTRAT
+  AVENANT
+  CERTIFICAT_MALADIE
+  AUTRE
+}
+
+enum AdminRequestType {
+  CHANGEMENT_ADRESSE
+  CHANGEMENT_EMAIL
+  CHANGEMENT_TELEPHONE
+  CHANGEMENT_RIB
+  ATTESTATION_TRAVAIL
+  COMPOSITION_FAMILIALE
+  TITRE_SEJOUR
+  REMBOURSEMENT_TRANSPORT
+  TICKETS_RESTAURANT
+}
+
+// ─── MODELS ───────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  firstName     String
+  lastName      String
+  matricule     String?  @unique
+  codeDossier   String?
+  role          Role     @default(COLLABORATEUR)
+  region        String?
+  department    String?
+  entryDate     DateTime
+  isActive      Boolean  @default(true)
+  avatarUrl     String?
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  managerId     String?
+  manager       User?    @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates  User[]   @relation("ManagerSubordinates")
+
+  leaveBalances     LeaveBalance[]
+  leaveRequests     LeaveRequest[]
+  remoteWorkRequests RemoteWorkRequest[]
+  approvalsGiven    Approval[]          @relation("ApproverApprovals")
+  notifications     Notification[]
+  documents         Document[]
+  adminRequests     AdminRequest[]
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([managerId])
+  @@index([region])
+}
+
+model LeaveBalance {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType     LeaveType
+  fiscalYear    String   // "FY26" = Juillet 2025 – Juin 2026
+  balanceStart  Float    @default(0)  // Solde N-1
+  acquired      Float    @default(0)  // CP acquis sur l'année
+  consumed      Float    @default(0)  // CP pris
+  pending       Float    @default(0)  // En attente validation
+  publicHolidayWorked Float @default(0) // JF Maroc travaillés (+1)
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, leaveType, fiscalYear])
+  @@index([userId])
+  @@index([fiscalYear])
+}
+
+model LeaveRequest {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  leaveType     LeaveType
+  startDate     DateTime
+  endDate       DateTime
+  workingDays   Float         // Jours ouvrés calculés
+  halfDay       Boolean       @default(false)
+  halfDayPeriod String?       // "AM" | "PM"
+  reason        String?
+  status        RequestStatus @default(PENDING_MANAGER)
+  refusedReason String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model RemoteWorkRequest {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  type          RemoteWorkType @default(REGULAR)
+  date          DateTime       // Single day request
+  weekNumber    Int            // ISO week number
+  yearNumber    Int
+  reason        String?
+  status        RequestStatus  @default(PENDING_MANAGER)
+  refusedReason String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([weekNumber, yearNumber])
+  @@index([date])
+  @@index([status])
+}
+
+model Approval {
+  id                  String        @id @default(cuid())
+  approverId          String
+  approver            User          @relation("ApproverApprovals", fields: [approverId], references: [id])
+  leaveRequestId      String?
+  leaveRequest        LeaveRequest? @relation(fields: [leaveRequestId], references: [id])
+  remoteWorkRequestId String?
+  remoteWorkRequest   RemoteWorkRequest? @relation(fields: [remoteWorkRequestId], references: [id])
+  adminRequestId      String?
+  adminRequest        AdminRequest? @relation(fields: [adminRequestId], references: [id])
+  status              RequestStatus
+  comment             String?
+  approvedAt          DateTime      @default(now())
+  step                Int           @default(1) // 1=Manager, 2=RH, 3=Final
+
+  @@index([approverId])
+  @@index([leaveRequestId])
+  @@index([remoteWorkRequestId])
+}
+
+model AdminRequest {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id])
+  type          AdminRequestType
+  status        RequestStatus    @default(PENDING_RH)
+  payload       Json?            // Données spécifiques à la demande
+  generatedDocId String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  approvals     Approval[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+}
+
+model Document {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  type          DocumentType
+  title         String
+  fileName      String
+  fileUrl       String
+  fileSize      Int?
+  mimeType      String?
+  isGenerated   Boolean      @default(false) // PDF généré automatiquement
+  validUntil    DateTime?
+  createdAt     DateTime     @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Notification {
+  id                  String        @id @default(cuid())
+  userId              String
+  user                User          @relation(fields: [userId], references: [id])
+  title               String
+  body                String
+  isRead              Boolean       @default(false)
+  type                String        // "LEAVE_APPROVED" | "TT_REFUSED" | "QUOTA_ALERT" etc.
+  leaveRequestId      String?
+  leaveRequest        LeaveRequest? @relation(fields: [leaveRequestId], references: [id])
+  remoteWorkRequestId String?
+  remoteWorkRequest   RemoteWorkRequest? @relation(fields: [remoteWorkRequestId], references: [id])
+  adminRequestId      String?
+  adminRequest        AdminRequest? @relation(fields: [adminRequestId], references: [id])
+  createdAt           DateTime      @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String   // "LEAVE_APPROVED" | "USER_CREATED" | "BALANCE_UPDATED" etc.
+  entity      String   // Table name
+  entityId    String
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model PublicHoliday {
+  id       String   @id @default(cuid())
+  date     DateTime @unique
+  name     String
+  country  String   @default("MA") // Maroc
+  isWorked Boolean  @default(false) // Férié travaillé = +1 récup
+
+  @@index([date])
+  @@index([country])
+}
+
+model RemoteWorkQuota {
+  id          String @id @default(cuid())
+  name        String // "standard" | "ramadan"
+  maxPerWeek  Int    @default(2)
+  maxPerMonth Int    @default(12)
+  validFrom   DateTime
+  validTo     DateTime?
+  isActive    Boolean @default(true)
+}
