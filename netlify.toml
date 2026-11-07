@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# NOTE: SQLite on Netlify — les données seedées sont disponibles en lecture.
+# Les écritures ne persistent pas entre les invocations de fonctions serverless.
+# Pour une persistance complète, migrer vers Turso (SQLite cloud, gratuit) :
+#   1. Créer un compte sur turso.tech
+#   2. npx prisma init --datasource-provider sqlite  (déjà fait)
+#   3. Changer le provider vers "sqlite" avec une URL Turso
+#   4. Ajouter TURSO_AUTH_TOKEN dans les variables d'env Netlify
